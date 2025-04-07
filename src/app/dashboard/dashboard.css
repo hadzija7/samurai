@@ -1,0 +1,135 @@
+/* Updated wallet status styles */
+.wallet-status-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    border: 1px solid #c334;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  
+  .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .wallet-address {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(195, 51, 51, 0.15);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #c334;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .wallet-address:hover {
+    background: rgba(195, 51, 51, 0.25);
+    transform: translateY(-1px);
+  }
+  
+  .wallet-address:hover::after {
+    content: attr(data-full-address);
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  
+  .logout-button {
+    background: transparent;
+    color: #c33;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #c33;
+    border-radius: 999px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .logout-button:hover {
+    background: rgba(195, 51, 51, 0.1);
+    box-shadow: 0 2px 8px rgba(195, 51, 51, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  .privy-login-button {
+    /* Keep existing styles, add rounded corners */
+    border-radius: 999px;
+    padding: 0.8rem 1.5rem;
+  }
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.samurai-chat {
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  margin: 20px auto 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 16px;
+}
+
+.send-button {
+  padding: 12px 24px;
+  background: #4a5568;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.send-button:hover {
+  background: #2d3748;
+}

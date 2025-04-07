@@ -1,0 +1,92 @@
+/* Samurai theme styles */
+body {
+    background: linear-gradient(to bottom, #2c3e50, #1a1a1a);
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Rain animation */
+/* body::before {
+    content: '';
+    position: fixed;
+    height: 200vh;
+    width: 100vw;
+    background: linear-gradient(transparent 80%, rgba(255,255,255,0.1) 90%);
+    animation: rain 1s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+} */
+
+@keyframes rain {
+    from { transform: translateY(-100vh); }
+    to { transform: translateY(100vh); }
+}
+
+/* Samurai container */
+.samurai-container {
+    position: relative;
+    width: 100%;
+    /* height: 70vh; */
+    overflow: hidden;
+}
+
+/* Samurai character with sword */
+.samurai-image {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 80vh;
+    background: url('/Waki_Visual_1.png') no-repeat center bottom;
+    background-size: contain;
+    animation: float 3s ease-in-out infinite;
+    z-index: 2;
+}
+
+/* Village background */
+.village-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: url('/Waki_Visual_1.png') no-repeat center center;
+    background-size: cover;
+    opacity: 0.3;
+    z-index: 0;
+    margin: 0 auto;
+}
+
+/* Text styling */
+.hero-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 50px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 3;
+    
+    /* New animation properties */
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 auto;
+}
+
+/* Writing effect */
+.hero-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.8) 10%,
+        transparent 20%
+    );
+    animation: write 3s linear infinite;
+    mask: linear-gradient(#fff 0 0) left/0% 100% no-repeat;
+}
