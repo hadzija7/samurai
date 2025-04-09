@@ -1,3 +1,5 @@
+import { Hex } from "viem";
+
 export async function extractJSONFromStream(stream: ReadableStream | null) {
     if (!stream) {
         return null;
@@ -15,3 +17,12 @@ export async function extractJSONFromStream(stream: ReadableStream | null) {
     // Parse the JSON string
     return JSON.parse(result);
 }
+
+export interface Transaction {
+  to: Hex;
+  // gasLimit?: string;
+  data: Hex;
+  value: string;
+}
+
+export const BASE_CHAIN_ID = 8453;

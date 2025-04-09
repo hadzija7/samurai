@@ -1,4 +1,4 @@
-
+import { kv } from "@vercel/kv";
 interface Transaction {
     to: string;
     gasLimit: string;
@@ -40,6 +40,8 @@ export async function getSwapTransaction(amount: string, fromToken: string, toTo
       }));
 
       console.log("Transactions: ", transactions)
+
+      await kv.set("transactions", JSON.stringify(transactions));
 
       return transactions
   
