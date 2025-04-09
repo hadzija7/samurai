@@ -23,17 +23,50 @@ export default function Dashboard() {
     console.log("Messsages: ", messages)
   }, [messages])
 
+  const initTransactions = async () => {
+    try {
+      // Import the storeTransactions function
+      const { storeTransactions } = await import('@/lib/transactions');
+      
+      // Store empty array to reset transactions
+      const result = await storeTransactions([]);
+      
+      if (result.success) {
+        console.log("Transactions reset successfully");
+        setTransactions([]);
+      } else {
+        console.error("Failed to reset transactions:", result.error);
+      }
+    } catch (error) {
+      console.error("Error initializing transactions:", error);
+    }
+  }
+
+  useEffect(() => {
+    initTransactions();
+  }, [])
+
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('/api/retrieve_transaction');
-      const data = await response.json();
+      const { transactions: fetchedTransactions, error } = await import('@/lib/transactions')
+        .then(module => module.retrieveTransactions());
+      
+      if (error) {
+        throw new Error(error);
+      }
 
-      console.log("Stored transactions: ", data.transactions);
-      if(data.transactions){
-        setTransactions(data.transactions);
+      console.log("Stored transactions: ", fetchedTransactions);
+      if (fetchedTransactions && fetchedTransactions.length > 0) {
+        setTransactions(fetchedTransactions);
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setTxStatus(`Error loading transactions: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setTxStatus('');
+      }, 5000);
     }
   };
 

@@ -7,10 +7,10 @@
     display: flex;
     justify-content: flex-end;
     padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(26, 95, 122, 0.8); /* primary-blue with opacity */
     border-radius: 999px;
     backdrop-filter: blur(8px);
-    border: 1px solid #c334;
+    border: 1px solid var(--light-blue);
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
   
@@ -24,18 +24,18 @@
   .wallet-address {
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 500;
-    color: #fff;
-    background: rgba(195, 51, 51, 0.15);
+    color: var(--text-light);
+    background: rgba(45, 147, 108, 0.2); /* primary-green with opacity */
     padding: 0.5rem 1rem;
     border-radius: 999px;
-    border: 1px solid #c334;
+    border: 1px solid var(--primary-green);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
   }
   
   .wallet-address:hover {
-    background: rgba(195, 51, 51, 0.25);
+    background: rgba(45, 147, 108, 0.3); /* primary-green with more opacity */
     transform: translateY(-1px);
   }
   
@@ -44,7 +44,7 @@
     position: absolute;
     top: 120%;
     right: 0;
-    background: rgba(0,0,0,0.8);
+    background: var(--navy-blue);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 6px;
@@ -55,9 +55,9 @@
   
   .logout-button {
     background: transparent;
-    color: #c33;
+    color: var(--primary-yellow);
     padding: 0.6rem 1.2rem;
-    border: 1px solid #c33;
+    border: 1px solid var(--primary-yellow);
     border-radius: 999px;
     font-family: 'Noto Serif JP', serif;
     font-size: 0.9rem;
@@ -66,15 +66,27 @@
   }
   
   .logout-button:hover {
-    background: rgba(195, 51, 51, 0.1);
-    box-shadow: 0 2px 8px rgba(195, 51, 51, 0.2);
+    background: rgba(255, 194, 10, 0.1); /* primary-yellow with opacity */
+    box-shadow: 0 2px 8px rgba(255, 194, 10, 0.2);
     transform: translateY(-1px);
   }
   
   .privy-login-button {
-    /* Keep existing styles, add rounded corners */
+    background: var(--primary-blue);
+    color: white;
+    border: none;
     border-radius: 999px;
     padding: 0.8rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border-bottom: 2px solid var(--navy-blue);
+  }
+  
+  .privy-login-button:hover {
+    background: var(--light-blue);
+    transform: translateY(-2px);
   }
 
 .dashboard-container {
@@ -82,6 +94,7 @@
   flex-direction: column;
   min-height: 100vh;
   padding: 20px;
+  background: var(--background-dark);
 }
 
 .samurai-chat {
@@ -89,65 +102,132 @@
   max-width: 800px;
   width: 100%;
   margin: 20px auto 0;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(13, 59, 102, 0.4); /* navy-blue with opacity */
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(117, 194, 246, 0.1); /* light-blue with opacity */
+  backdrop-filter: blur(5px);
 }
 
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
-  margin-bottom: 20px;
+  max-height: 450px;
+  margin-bottom: 24px;
   padding-right: 10px;
+}
+
+.message {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  line-height: 1.6;
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+  color: white;
+  font-size: 16px;
+}
+
+.message:nth-child(odd) {
+  background: rgba(26, 95, 122, 0.3); /* primary-blue with opacity */
+  border-left: 3px solid var(--primary-blue);
+  margin-right: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.message:nth-child(even) {
+  background: rgba(45, 147, 108, 0.2); /* primary-green with opacity */
+  border-left: 3px solid var(--primary-green);
+  margin-left: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* User vs AI message styling */
+.message[data-role="user"] {
+  font-weight: 500;
+}
+
+.message[data-role="assistant"] {
+  font-weight: 400;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .chat-input {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .chat-input form {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
 .transaction-status {
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.2);
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(13, 59, 102, 0.5); /* navy-blue with opacity */
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-light);
   font-size: 14px;
   text-align: center;
-  border-left: 3px solid #c33;
+  border-left: 3px solid var(--primary-yellow);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 194, 10, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 194, 10, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 194, 10, 0); }
 }
 
 .chat-input input {
   flex: 1;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 16px;
+  border: 1px solid var(--light-blue);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(13, 59, 102, 0.3); /* navy-blue with opacity */
   color: white;
   font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.chat-input input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px rgba(26, 95, 122, 0.3);
 }
 
 .send-button {
-  padding: 12px 24px;
-  background: #4a5568;
+  padding: 14px 24px;
+  background: var(--primary-green);
   border: none;
   border-radius: 8px;
   color: white;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid var(--forest-green);
 }
 
 .send-button:hover {
-  background: #2d3748;
+  background: var(--mint-green);
+  color: var(--navy-blue);
+  transform: translateY(-2px);
+}
+
+.send-button:disabled {
+  background: rgba(45, 147, 108, 0.4);
+  cursor: not-allowed;
+  transform: none;
+  border-bottom: none;
 }

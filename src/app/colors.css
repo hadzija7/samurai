@@ -1,0 +1,30 @@
+/* SamurAI Branding Colors */
+
+:root {
+  /* Primary Colors */
+  --primary-blue: #1A5F7A;
+  --primary-yellow: #FFC20A;
+  --primary-green: #2D936C;
+
+  /* Supporting Colors */
+  --light-blue: #75C2F6;
+  --pale-yellow: #FFEA80;
+  --mint-green: #A3E4D7;
+
+  /* Accent/Dark Colors */
+  --navy-blue: #0D3B66;
+  --amber: #F18F01;
+  --forest-green: #155D27;
+
+  /* UI-specific colors */
+  --background-dark: linear-gradient(to bottom, var(--navy-blue), #1a1a1a);
+  --background-light: #F5F7FA;
+  --text-light: #FFFFFF;
+  --text-dark: var(--navy-blue);
+  --success: var(--primary-green);
+  --error: #E74C3C;
+  --warning: var(--amber);
+  --info: var(--light-blue);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow: rgba(0, 0, 0, 0.2);
+}
