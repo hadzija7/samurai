@@ -55,12 +55,16 @@ export default function AuthenticatedConsentForm({
   agentPKP,
   userPKP,
 }: AuthenticatedConsentFormProps) {
-  const { appId, error: urlError } = useUrlAppId();
-  const { redirectUri: encodedRedirectUri, error: redirectError } =
-    useUrlRedirectUri();
-  const redirectUri = encodedRedirectUri
-    ? decodeURIComponent(encodedRedirectUri)
-    : null;
+  // const { appId, error: urlError } = useUrlAppId();
+  // const { redirectUri: encodedRedirectUri, error: redirectError } =
+  //   useUrlRedirectUri();
+  // const redirectUri = encodedRedirectUri
+  //   ? decodeURIComponent(encodedRedirectUri)
+  //   : null;
+  const redirectUri = process.env.NEXT_PUBLIC_BASE_URL || null; //our consent page is at the same URL as our app.
+  const appId = null;
+  const urlError = null;
+  const redirectError = null;
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -162,7 +166,7 @@ export default function AuthenticatedConsentForm({
 
   // Use the consent approval hook
   const { approveConsent, updateParameters } = useConsentApproval({
-    appId: appId as string,
+    appId: appId as any,
     appInfo: appInfo as AppView,
     versionInfo: versionInfo as ContractVersionResult,
     parameters,
