@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   // const { pkpAddress } = authReq.user!;
   // const { purchaseAmount } = await req.json();
   const pkpAddress = "0xF56eb5eB59d03606ab4aC901B43851431093d3Af";
-  const purchaseAmount = 1; //in dollars
+  const purchaseAmount = 0.1; //in dollars
 
   if (!purchaseAmount || purchaseAmount <= 0) {
     return NextResponse.json({

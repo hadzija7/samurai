@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { LIT_EVM_CHAINS } from "@lit-protocol/constants";
 import { LITEVMChain } from "@lit-protocol/types";
 import { ethers } from "ethers";
+import { UserRoundCog } from "lucide-react";
 
 const ERC20_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 
@@ -22,6 +23,10 @@ const WETH_CONTRACT_ADDRESSES: Record<number, string> = {
     "0x4200000000000000000000000000000000000006",
 };
 
+const USDC_CONTRACT_ADDRESSES: Record<number, string> = {
+  [LIT_EVM_CHAINS.base.chainId]: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+};
+
 export const useChain = () => {
   const [chain, setChain] = useState<LITEVMChain>(LIT_EVM_CHAINS.base);
 
@@ -39,10 +44,21 @@ export const useChain = () => {
     [chain, provider],
   );
 
+  const usdcContract = useMemo(
+    () =>
+      new ethers.Contract(
+        USDC_CONTRACT_ADDRESSES[chain.chainId],
+        ERC20_ABI,
+        provider,
+      ),
+    [chain, provider],
+  );
+
   return {
     chain,
     setChain,
     provider,
     wethContract,
+    usdcContract,
   };
 };

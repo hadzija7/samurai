@@ -3,6 +3,7 @@ import { useCallback, useContext } from "react";
 import { BACKEND_URL, REDIRECT_URI } from "../config";
 import { JwtContext } from "@/contexts/jwt";
 import { useVincentWebAppClient } from "@/hooks/useVincentWebAppClient";
+import { minInt8 } from "viem";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -85,8 +86,20 @@ export const useBackend = () => {
     [sendRequest],
   );
 
+  const mintCapacityCredits = useCallback(
+    async (mintCapacityCreditsArgs: any) => {
+      return sendRequest<any>(
+        "/mint_capacity_credits",
+        "POST",
+        mintCapacityCreditsArgs,
+      );
+    },
+    [sendRequest],
+  );
+
   return {
     getJwt,
     sendMoney,
+    mintCapacityCredits,
   };
 };

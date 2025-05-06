@@ -18,13 +18,14 @@ const formatAddress = (address: string | undefined) => {
 };
 
 export default function Wallet() {
-  const { chain, provider, wethContract } = useChain();
+  const { chain, provider, wethContract, usdcContract } = useChain();
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [wethBalance, setWethBalance] = useState<string>("0");
+  const [usdcBalance, setUsdcBalance] = useState<string>("0");
   const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { authInfo, logOut } = useContext(JwtContext);
-  const { sendMoney } = useBackend();
+  const { sendMoney, mintCapacityCredits } = useBackend();
 
   useEffect(() => {
     console.log("AuthInfo: ", authInfo);
@@ -38,14 +39,18 @@ export default function Wallet() {
       setIsLoadingBalance(true);
       setError(null);
 
-      const [ethBalanceWei, wethBalanceWei] = await Promise.all([
-        provider.getBalance(authInfo?.pkp.address),
-        wethContract.balanceOf(authInfo?.pkp.address),
-      ]);
+      const [ethBalanceWei, wethBalanceWei, usdcBalanceWei] = await Promise.all(
+        [
+          provider.getBalance(authInfo?.pkp.address),
+          wethContract.balanceOf(authInfo?.pkp.address),
+          usdcContract.balanceOf(authInfo?.pkp.address),
+        ],
+      );
 
       // Both have 18 decimal places
       setEthBalance(ethers.utils.formatEther(ethBalanceWei));
       setWethBalance(ethers.utils.formatEther(wethBalanceWei));
+      setUsdcBalance(ethers.utils.formatUnits(usdcBalanceWei, 6));
 
       setIsLoadingBalance(false);
     } catch (err: unknown) {
@@ -62,6 +67,11 @@ export default function Wallet() {
   const handleSendMoney = async () => {
     // Implement sendMoney logic here
     await sendMoney({});
+  };
+
+  const handleMintCapacityCredits = async () => {
+    // Implement mintCapacityCredits logic here
+    await mintCapacityCredits({});
   };
 
   return (
@@ -86,16 +96,12 @@ export default function Wallet() {
             {formatAddress(authInfo?.pkp.address)}
           </a>
         </Box>
-
         <Separator />
-
         <Box className="flex flex-row items-stretch justify-between">
           <BoxDescription>Network:</BoxDescription>
           <Badge>{chain.name}</Badge>
         </Box>
-
         <Separator />
-
         <Box className="flex flex-row items-stretch justify-between">
           <BoxDescription>ETH Balance:</BoxDescription>
           <span
@@ -110,7 +116,6 @@ export default function Wallet() {
               : `${parseFloat(ethBalance).toFixed(4)} ${chain.symbol}`}
           </span>
         </Box>
-
         <Box className="flex flex-row items-stretch justify-between">
           <BoxDescription>WETH Balance:</BoxDescription>
           <span
@@ -125,7 +130,20 @@ export default function Wallet() {
               : `${parseFloat(wethBalance).toFixed(4)} WETH`}
           </span>
         </Box>
-
+        <Box className="flex flex-row items-stretch justify-between">
+          <BoxDescription>USDC Balance:</BoxDescription>
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: "bold",
+              color: "#333",
+            }}
+          >
+            {isLoadingBalance
+              ? "Loading..."
+              : `${parseFloat(usdcBalance).toFixed(4)} USDC`}
+          </span>
+        </Box>
         {error && (
           <div
             style={{
@@ -145,9 +163,11 @@ export default function Wallet() {
             {error}
           </div>
         )}
-
-        <button onClick={handleSendMoney}> Send Money</button>
-
+        <button onClick={handleSendMoney}> Send Money</button> <br />
+        <button onClick={handleMintCapacityCredits}>
+          {" "}
+          Mint Capacity Credits
+        </button>
         <Button
           className="w-full"
           disabled={isLoadingBalance}
