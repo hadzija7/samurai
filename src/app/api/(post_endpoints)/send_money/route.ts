@@ -7,6 +7,7 @@ const authMiddleware = createAuthMiddleware(ALLOWED_AUDIENCE);
 
 // Define your handler with typed request
 export async function POST(req: NextRequest) {
+  console.log("Request headers (send money endpoint): ", req.headers);
   // Authenticate user
   const authReq: NextAuthenticatedRequest | NextResponse =
     await authMiddleware(req);
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
   console.log("PKP address:", pkpAddress);
 
   //call Lit Action and pass pkpAddress as parameter.
-  await executeSwap(purchaseAmount, pkpAddress);
+  // await executeSwap(purchaseAmount, pkpAddress);
 
   console.log("Swap executed");
 

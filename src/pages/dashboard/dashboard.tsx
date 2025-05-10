@@ -1,9 +1,10 @@
 "use client";
 import { usePrivy, useSendTransaction, useWallets } from "@privy-io/react-auth";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import "./dashboard.css";
 import { BASE_CHAIN_ID, Transaction } from "@/lib/utils";
+import { JwtContext } from "@/contexts/jwt";
 
 export default function Dashboard() {
   const { login, logout, authenticated, ready } = usePrivy();
@@ -13,6 +14,8 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [txStatus, setTxStatus] = useState<string>("");
   const { sendTransaction } = useSendTransaction();
+
+  const { authInfo } = useContext(JwtContext);
 
   useEffect(() => {
     console.log("Wallets: ", wallets);
@@ -81,6 +84,9 @@ export default function Dashboard() {
 
   const handleChat = async (e: any) => {
     e.preventDefault();
+    if (!authInfo?.jwt) {
+      throw new Error("No JWT to query backend");
+    }
     messages.push({
       role: "system",
       content: JSON.stringify({
@@ -90,7 +96,12 @@ export default function Dashboard() {
       id: crypto.randomUUID(),
       parts: [],
     });
-    handleSubmit();
+    handleSubmit(undefined, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authInfo.jwt}`,
+      },
+    });
   };
 
   const submitTransactions = async () => {

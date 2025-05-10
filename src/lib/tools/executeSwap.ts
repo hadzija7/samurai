@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 
 import { getEthereumPriceUsd } from "../ethPriceLoader";
 import {
-  getAddressesByChainId,
   getErc20Info,
   getEstimatedGasForApproval,
   getEstimatedUniswapCosts,
@@ -18,30 +17,28 @@ import {
 
 const BASE_RPC_URL = process.env.BASE_RPC_URL;
 const BASE_CHAIN_ID = "8453";
-const WETH_ADDRESS: string =
-  getAddressesByChainId(BASE_CHAIN_ID).WETH_ADDRESS || "";
-const USDC_ADDRESS: string =
-  getAddressesByChainId(BASE_CHAIN_ID).USDC_ADDRESS || "";
 
 async function addApproval({
   baseProvider,
   nativeEthBalance,
   walletAddress,
-  wethAmount,
-  wEthDecimals,
+  amount,
+  tokenDecimals,
+  tokenAddress,
 }: {
   baseProvider: ethers.providers.StaticJsonRpcProvider;
   nativeEthBalance: ethers.BigNumber;
-  wEthDecimals: ethers.BigNumber;
+  tokenDecimals: ethers.BigNumber;
   walletAddress: string;
-  wethAmount: number;
+  amount: number;
+  tokenAddress: string;
 }): Promise<ethers.BigNumber> {
   const approvalGasCost = await getEstimatedGasForApproval(
     baseProvider,
     BASE_CHAIN_ID,
-    WETH_ADDRESS!,
-    (wethAmount * 5).toFixed(18).toString(),
-    wEthDecimals.toString(),
+    tokenAddress,
+    (amount * 5).toFixed(tokenDecimals.toNumber()).toString(),
+    tokenDecimals.toString(),
     walletAddress,
   );
 
@@ -61,11 +58,11 @@ async function addApproval({
     vincentAppVersion: 11,
   });
   const toolExecutionResult = await erc20ApprovalToolClient.execute({
-    amountIn: (wethAmount * 5).toFixed(18).toString(), // Approve 5x the amount to spend so we don't wait for approval tx's every time we run
+    amountIn: (amount * 5).toFixed(tokenDecimals.toNumber()).toString(), // Approve 5x the amount to spend so we don't wait for approval tx's every time we run
     chainId: BASE_CHAIN_ID,
     pkpEthAddress: walletAddress,
     rpcUrl: BASE_RPC_URL,
-    tokenIn: WETH_ADDRESS!,
+    tokenIn: tokenAddress,
   });
 
   console.log("ERC20 Approval Vincent Tool Response:", toolExecutionResult);
@@ -105,35 +102,39 @@ async function handleSwapExecution({
   approvalGasCost,
   baseProvider,
   nativeEthBalance,
+  tokenInAddress,
+  tokenOutAddress,
   tokenOutInfo,
   walletAddress,
-  wethAmount,
-  wEthBalance,
-  wEthDecimals,
+  amount,
+  tokenInBalance,
+  tokenInDecimals,
 }: {
   approvalGasCost: ethers.BigNumber;
   baseProvider: ethers.providers.StaticJsonRpcProvider;
   nativeEthBalance: ethers.BigNumber;
+  tokenInAddress: string;
+  tokenOutAddress: string;
   tokenOutInfo: { decimals: ethers.BigNumber };
-  wEthBalance: ethers.BigNumber;
-  wEthDecimals: ethers.BigNumber;
+  tokenInBalance: ethers.BigNumber;
+  tokenInDecimals: ethers.BigNumber;
   walletAddress: string;
-  wethAmount: number;
-}): Promise<void> {
+  amount: number;
+}): Promise<string> {
   const { gasCost, swapCost } = await getEstimatedUniswapCosts({
-    amountIn: wethAmount.toFixed(18).toString(),
+    amountIn: amount.toFixed(tokenInDecimals.toNumber()).toString(),
     pkpEthAddress: walletAddress,
-    tokenInAddress: WETH_ADDRESS,
-    tokenInDecimals: wEthDecimals,
-    tokenOutAddress: USDC_ADDRESS,
+    tokenInAddress: tokenInAddress,
+    tokenInDecimals: tokenInDecimals,
+    tokenOutAddress: tokenOutAddress,
     tokenOutDecimals: tokenOutInfo.decimals,
     userChainId: BASE_CHAIN_ID,
     userRpcProvider: baseProvider,
   });
 
-  if (swapCost.amountOutMin.gt(wEthBalance)) {
+  if (swapCost.amountOutMin.gt(tokenInBalance)) {
     throw new Error(
-      `Not enough WETH to swap - balance is ${wEthBalance.toString()}, needed ${swapCost.amountOutMin.toString()}`,
+      `Not enough tokens to swap - balance is ${tokenInBalance.toString()}, needed ${swapCost.amountOutMin.toString()}`,
     );
   }
 
@@ -146,12 +147,12 @@ async function handleSwapExecution({
 
   const uniswapToolClient = getUniswapToolClient({ vincentAppVersion: 11 });
   const uniswapSwapToolResponse = await uniswapToolClient.execute({
-    amountIn: wethAmount.toFixed(18).toString(),
+    amountIn: amount.toFixed(tokenInDecimals.toNumber()).toString(),
     chainId: BASE_CHAIN_ID,
     pkpEthAddress: walletAddress,
     rpcUrl: BASE_RPC_URL,
-    tokenIn: WETH_ADDRESS,
-    tokenOut: USDC_ADDRESS,
+    tokenIn: tokenInAddress,
+    tokenOut: tokenOutAddress,
   });
 
   console.trace("Swap Vincent Tool Response:", uniswapSwapToolResponse);
@@ -184,46 +185,39 @@ async function handleSwapExecution({
 
 export async function executeSwap(
   purchaseAmount: number,
+  tokenIn: string,
+  tokenOut: string,
   walletAddress: string,
 ): Promise<void> {
   try {
     console.log("Executing swap...", {
       purchaseAmount,
       walletAddress,
+      tokenIn,
+      tokenOut,
     });
 
-    console.log("Base url: ", BASE_RPC_URL);
     const baseProvider = new ethers.providers.StaticJsonRpcProvider(
       { skipFetchSetup: true, url: BASE_RPC_URL as string },
-      // BASE_RPC_URL,
       {
         chainId: 8453, // Base mainnet chainId
         name: "base",
       },
     );
 
-    console.log("WETH Address: ", WETH_ADDRESS);
-    const blockNumber = await baseProvider.getBlockNumber();
-    console.log("Block number: ", blockNumber);
+    const tokenInContract = getERC20Contract(tokenIn, baseProvider);
 
-    const wethContract = getERC20Contract(WETH_ADDRESS!, baseProvider);
-
-    console.log("Before decimals");
-    const wEthDecimals = await wethContract.decimals();
-    const wEthBalance = await wethContract.balanceOf(walletAddress);
-    console.log("before tokenout");
-    const tokenOutInfo = await getErc20Info(baseProvider, USDC_ADDRESS);
-    console.log("Before Eth price...");
+    const tokenInDecimals: any = await tokenInContract.decimals();
+    const tokenInName = await tokenInContract.name();
+    const tokenInBalance = await tokenInContract.balanceOf(walletAddress);
+    const tokenOutInfo = await getErc20Info(baseProvider, tokenOut);
     const ethPriceUsd = await getEthereumPriceUsd();
-    console.log("After Eth price...");
     const existingAllowance = await getExistingUniswapAllowance(
       BASE_CHAIN_ID,
-      getERC20Contract(WETH_ADDRESS!, baseProvider),
+      getERC20Contract(tokenIn, baseProvider),
       walletAddress,
     );
     const nativeEthBalance = await baseProvider.getBalance(walletAddress);
-
-    console.log("after details...");
 
     if (!nativeEthBalance.gt(0)) {
       throw new Error(
@@ -231,60 +225,62 @@ export async function executeSwap(
       );
     }
 
-    if (!wEthBalance.gt(0)) {
+    if (!tokenInBalance.gt(0)) {
       throw new Error(
-        `No wEth balance for account ${walletAddress} - please fund this account with WETH to swap`,
+        `No token balance for account ${walletAddress} - please fund this account with ${tokenInName} to swap`,
       );
     }
 
     const usdAmountStr = purchaseAmount.toString();
-    const wethPriceStr = ethPriceUsd.toString();
+    const tokenPriceStr = ethPriceUsd.toString();
 
-    const wethAmount = parseFloat(usdAmountStr) / parseFloat(wethPriceStr);
-    const wethToSpend = ethers.utils.parseEther(wethAmount.toFixed(18));
+    const amount = parseFloat(usdAmountStr) / parseFloat(tokenPriceStr);
+    const tokenToSpend = ethers.utils.parseEther(
+      amount.toFixed(tokenInDecimals.toNumber()),
+    );
 
     console.log("Job details", {
       ethPriceUsd,
       purchaseAmount,
       usdAmountStr,
       walletAddress,
-      wethAmount,
-      wethPriceStr,
+      amount,
+      tokenPriceStr,
       existingAllowance: existingAllowance.toString(),
       nativeEthBalance: nativeEthBalance.toString(),
-      wethToSpend: wethToSpend.toString(),
+      tokenToSpend: tokenToSpend.toString(),
     });
 
-    const needsApproval = existingAllowance.lte(wethToSpend);
+    const needsApproval = existingAllowance.lte(tokenToSpend);
 
     let approvalGasCost = ethers.BigNumber.from(0);
 
     if (needsApproval) {
       approvalGasCost = await addApproval({
-        // eslint-disable-next-line sort-keys-plus/sort-keys
+        amount,
         baseProvider,
         nativeEthBalance,
+        tokenAddress: tokenIn,
+        tokenDecimals: tokenInDecimals,
         walletAddress,
-        wethAmount,
-        wEthDecimals,
       });
     }
 
     const swapHash = await handleSwapExecution({
-      // eslint-disable-next-line sort-keys-plus/sort-keys
+      amount,
       approvalGasCost,
       baseProvider,
       nativeEthBalance,
+      tokenInAddress: tokenIn,
+      tokenInBalance,
+      tokenInDecimals,
+      tokenOutAddress: tokenOut,
       tokenOutInfo,
       walletAddress,
-      wethAmount,
-      wEthBalance,
-      wEthDecimals,
     });
+
+    console.log("Swap hash: ", swapHash);
   } catch (e) {
-    // Catch-and-rethrow is usually an anti-pattern, but Agenda doesn't log failed job reasons to console
-    // so this is our chance to log the job failure details using Consola before we throw the error
-    // to Agenda, which will write the failure reason to the Agenda job document in Mongo
     const err = e as Error;
     console.error(err.message, err.stack);
     throw e;
